@@ -33,11 +33,17 @@ jobs:
        
      # 2. 安装 zip 工具（如果需要）
     - name: Install zip
-      run: sudo apt-get update && sudo apt-get install -y zip
+      run: sudo apt-get update && sudo apt-get install -y p7zip-full
         
         # 4. 压缩文件夹为 ZIP 文件
-    - name: Compress folder to ZIP
-      run: zip -r my-repository.zip repository    
+    - name: Compress folder to ZIP 
+      run: |
+          # 假设需要压缩的文件夹是 "my_folder"
+          FOLDER_TO_COMPRESS="repository"
+          OUTPUT_NAME="my-repository"
+          VOLUME_SIZE="500m"  # 每个分卷的大小，例如 10MB
+          # 创建分卷压缩文件
+          7z a -v${VOLUME_SIZE} -tzip "${OUTPUT_NAME}.zip" "${FOLDER_TO_COMPRESS}"
 
     - name: Get current timestamp
       id: get_timestamp
@@ -58,7 +64,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./my-repository.zip
+        file: ./my-repository.zip*
         tag: release-${{ steps.get_timestamp.outputs.timestamp }}
         overwrite: true
         file_glob: true
